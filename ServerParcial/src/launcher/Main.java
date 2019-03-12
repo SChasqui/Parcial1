@@ -5,10 +5,17 @@ import java.util.Scanner;
 import communication.Connection;
 import communication.TCPConnection;
 import communication.TCPConnection.ConnectionEvent;
+import model.Partida;
 
 public class Main implements ConnectionEvent{
 	
 	private TCPConnection manager; 
+	//PST =  Protocolo de solucitud de turno
+	public final static String PST = "solTurno";
+	private static Partida partida;
+	private int turno;
+	private String ipDeTurno;
+	
 	
 	public static void main(String[] args) {
 		
@@ -43,14 +50,14 @@ public class Main implements ConnectionEvent{
 	@Override
 	public void onMessage(String uuid, String msj) {
 		// TODO Auto-generated method stub
-		if(msj.equals("myid")) {
-			manager.getConnectionById(uuid).sendMessage(uuid);
-		}
-		
-		if(msj.contains("::")) {
-			//Usando protocolo de mensaje directo
-			String[] data =  msj.split("::");
-			manager.sendDirectMessage(uuid,data[0], data[1]);
+		String[] msjSplit = msj.split("-");
+		if(msjSplit[0].equals(PST)) {
+			
+			ipDeTurno = partida.getJugadorDeTurno();
+			if(ipDeTurno.equals(msjSplit[1])) {
+				partida.hacerJugada(msjSplit[1],msjSplit[2]);
+			}
+			
 		}
 		
 	}
