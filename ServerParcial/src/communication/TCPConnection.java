@@ -52,6 +52,12 @@ public class TCPConnection {
 				connection.init();
 				
 				connections.put(connection.getUuid(), connection);
+				if(getClientsCount() == 2) {
+					System.out.println("Conectandose con dos clientes");
+					for(int i=0 ; i<listeners.size() ; i++) listeners.get(i).onReady();
+				}else if(getClientsCount() == 3) {
+					for(int i=0 ; i<listeners.size() ; i++) listeners.get(i).onFull();
+				}
 				for(int i=0 ; i<listeners.size() ; i++) listeners.get(i).onConnection();
 			}
 			
@@ -65,6 +71,8 @@ public class TCPConnection {
 	public interface ConnectionEvent{
 		void onConnection();
 		void onMessage(String uuid, String msj);
+		void onReady();
+		void onFull();
 	}
 	
 	
@@ -89,11 +97,20 @@ public class TCPConnection {
 		return connections.get(uuid);
 	}
 
-	public void sendDirectMessage(String remitente, String destinatario, String mensaje) {
+	public void sendDirectMessage(String destinatario, String mensaje) {
 		
-		getConnectionById(destinatario).sendMessage(mensaje + " Enviado por"+ remitente);
+		getConnectionById(destinatario).sendMessage(mensaje);
 	}
 	
+	public ArrayList<String> getUuids() {
+		// TODO Auto-generated method stub
+		ArrayList<String> list = new ArrayList<String>();
+		for(String key : connections.keySet()) {
+			list.add(key);
+		}
+		
+		return list;
+	}
 	
 	
 	//Estructura de los mensajes TCP
