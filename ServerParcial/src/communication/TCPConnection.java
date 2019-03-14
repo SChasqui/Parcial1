@@ -44,21 +44,24 @@ public class TCPConnection {
 			
 			while(true) {
 				
-				System.out.println("Esperando cliente");
-				Socket socket = server.accept();
-				System.out.println("Cliente conectado!");
-				Connection connection =  new Connection(socket);
-				connection.defineListeners(listeners);
-				connection.init();
-				
-				connections.put(connection.getUuid(), connection);
-				if(getClientsCount() == 2) {
-					System.out.println("Conectandose con dos clientes");
-					for(int i=0 ; i<listeners.size() ; i++) listeners.get(i).onReady();
-				}else if(getClientsCount() == 3) {
-					for(int i=0 ; i<listeners.size() ; i++) listeners.get(i).onFull();
+				if(connections.size()<=3) {
+					
+					System.out.println("Esperando cliente");
+					Socket socket = server.accept();
+					System.out.println("Cliente conectado!");
+					Connection connection =  new Connection(socket);
+					connection.defineListeners(listeners);
+					connection.init();
+					
+					connections.put(connection.getUuid(), connection);
+					if(getClientsCount() == 2) {
+						System.out.println("Conectandose con dos clientes");
+						for(int i=0 ; i<listeners.size() ; i++) listeners.get(i).onReady();
+					}else if(getClientsCount() == 3) {
+						for(int i=0 ; i<listeners.size() ; i++) listeners.get(i).onFull();
+					}
+					for(int i=0 ; i<listeners.size() ; i++) listeners.get(i).onConnection();
 				}
-				for(int i=0 ; i<listeners.size() ; i++) listeners.get(i).onConnection();
 			}
 			
 		} catch (IOException e) {
